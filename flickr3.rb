@@ -1,10 +1,11 @@
 require 'cgi'
-require 'flickraw-cached'
 require 'flickraw'
 require 'net/http'
 require 'uri'
 require 'yaml'
 require 'logger'
+
+TASA_DE_SULFATAMIENTO = 5
 
 log = Logger.new( 'log.txt', 'daily' )
 
@@ -45,7 +46,12 @@ flickr.access_token = settings["flickr"]["access_token"]
 flickr.access_secret = settings["flickr"]["access_secret"]
 
 flickrUserName = settings["flickr"]["flickr_user_name"]
-LOCAL_PHOTO_DIR = '/Users/hector-garcia/Desktop/'
+
+if(!settings["local"]["photo_folder"])
+  LOCAL_PHOTO_DIR = '~/Desktop/'
+else
+  LOCAL_PHOTO_DIR = settings["local"]["photo_folder"]
+end
 
 myUserId = flickr.people.findByUsername(:username => flickrUserName).id
 threads = Array.new
@@ -57,7 +63,7 @@ flickr.photosets.getList(:user_id => myUserId).each do |photo|
   print "Threads activos: "
   print threads.length
 
-  if threads.length > 5
+  if threads.length > TASA_DE_SULFATAMIENTO 
     threads.each do |t|
       t.join
     end
