@@ -32,8 +32,9 @@ end
 
 begin
   settings = YAML::load_file('settings.yaml')
-rescue ArgumentError => e
+rescue Exception => e
   puts "Could not parse YAML: #{e.message}"
+  exit
 end
 
 if (!settings["flickr"]["api_key"] || !settings["flickr"]["shared_secret"] || !settings["flickr"]["access_token"] || !settings["flickr"]["access_secret"])
