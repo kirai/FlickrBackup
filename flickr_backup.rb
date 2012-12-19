@@ -4,6 +4,7 @@ require 'net/http'
 require 'uri'
 require 'yaml'
 require 'logger'
+require 'typhoeus'
 
 TASA_DE_SULFATAMIENTO = 5
 
@@ -73,41 +74,72 @@ threads = Array.new
 
 print "Downloading ", flickrUserName, "'s photos \n"
 
+#Con typhoeus, hydras y toa la pesca
+
+hydra = Typhoeus::Hydra.new(:max_concurrency => 20)
+
 flickr.photosets.getList(:user_id => myUserId).each do |photo|
 
-  print "Threads activos: "
-  print threads.length
+  url = flickr.photos.getSizes(:photo_id => photo.primary).find{|p| p["label"]=="Original"}["source"] rescue ''
+  filename = CGI.unescapeHTML(photo.title).gsub(/ |&|,|-/, '_').gsub(/'/, '').downcase.squeeze('_') + '_' + photo.primary + '.jpg'
+  filepath = LOCAL_PHOTO_DIR + filename
 
-  if threads.length > TASA_DE_SULFATAMIENTO 
-    threads.each do |t|
-      t.join
+  if File.exists?(filepath)
+    puts "Duplicada"
+  else
+    puts "Encolando fotaco en la hydra"
+    r = Typhoeus::Request.new(url)
+    r.on_complete do |response|
+      open("#{filepath}", "wb") do |file|
+        file.write(response.body)
+      end
     end
-    threads.clear
+    hydra.queue r
   end
 
-  begin
-
-    url = flickr.photos.getSizes(:photo_id => photo.primary).find{|p| p["label"]=="Original"}["source"] rescue ''
-    filename = CGI.unescapeHTML(photo.title).gsub(/ |&|,|-/, '_').gsub(/'/, '').downcase.squeeze('_') + '_' + photo.primary + '.jpg'
-    filepath = LOCAL_PHOTO_DIR + filename
-
-    if File.exists?(filepath)
-      puts "Duplicada"
-    else
-      puts "Pillando fotaco"
-      threads << Thread.new {
-        uri = URI(url)
-        Net::HTTP.start(uri.host) do |http|
-          resp = http.get(uri.path)
-          open("#{filepath}", "wb") do |file|
-            file.write(resp.body)
-          end
-        end
-      }
-    end
-
-  rescue Exception => e
-    "Algo ha petado mientras trataba de pillar una foto"
+  if hydra.queued_requests.size > TASA_DE_SULFATAMIENTO
+     puts "La hydra se pone a currar"
+     hydra.run
   end
-  puts "\n"
+  sleep(1)  # Para no sulfatar el API de flickr
 end
+
+# Con Threads
+#flickr.photosets.getList(:user_id => myUserId).each do |photo|
+#
+#  print "Threads activos: "
+#  print threads.length
+#
+#  if threads.length > TASA_DE_SULFATAMIENTO 
+#    threads.each do |t|
+#      t.join
+#    end
+#    threads.clear
+#  end
+#
+#  begin
+#
+#    url = flickr.photos.getSizes(:photo_id => photo.primary).find{|p| p["label"]=="Original"}["source"] rescue ''
+#    filename = CGI.unescapeHTML(photo.title).gsub(/ |&|,|-/, '_').gsub(/'/, '').downcase.squeeze('_') + '_' + photo.primary + '.jpg'
+#    filepath = LOCAL_PHOTO_DIR + filename
+#
+#    if File.exists?(filepath)
+#      puts "Duplicada"
+#    else
+#      puts "Pillando fotaco"
+#      threads << Thread.new {
+#        uri = URI(url)
+#        Net::HTTP.start(uri.host) do |http|
+#          resp = http.get(uri.path)
+#          open("#{filepath}", "wb") do |file|
+#            file.write(resp.body)
+#          end
+#        end
+#      }
+#    end
+#
+#  rescue Exception => e
+#    "Algo ha petado mientras trataba de pillar una foto"
+#  end
+#  puts "\n"
+#end
