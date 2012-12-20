@@ -5,39 +5,37 @@ require 'uri'
 require 'yaml'
 require 'logger'
 require 'typhoeus'
+require 'commander/import'
+require_relative 'lib/flickr_connector.rb'
+
+################################################################################
+program :name, 'Ruby Flickr Backup'
+program :version, '0.0.1'
+program :description, 'Ruby Flickr script to download full sized pictures from 
+                       your flickr photostream'
+
+command :photoset do |c|
+  c.syntax = 'flickr_backup.rb photoset [options]'
+  c.description = 'Downloads all the pictures from a specific photoset'
+  c.option '--photosetid PhotosetId', String, 'Photoset id to be downloaded'
+  c.action do |args, options|
+    #if options.default[:photosetid]
+    #  photoset_id = options.default[:photosetid]
+    #end
+    options.default :prefix => '(', :suffix => ')'
+    say "#{options.prefix}#{options.suffix}"
+  end
+end
+
+################################################################################
 
 TASA_DE_SULFATAMIENTO = 5
+
+photoset_id = '72157613159816302'
 
 log = Logger.new( 'log.txt', 'daily' )
 
 log.info("Starting...")
-
-class FlickrConnector
-
-  def set_api_key_shared_secret(api_key, shared_secret)
-    FlickRaw.api_key  = api_key
-    FlickRaw.shared_secret = shared_secret
-  end
-  
-  def request_token
-    token = flickr.get_request_token
-    auth_url = flickr.get_authorize_url(token['oauth_token'], :perms => 'delete')
-    puts "Open this url: #{auth_url}"
-    puts "Copy here the number given when you complete the process."
-    verify = gets.strip
-  
-    begin
-      flickr.get_access_token(token['oauth_token'], token['oauth_token_secret'], verify)
-      login = flickr.test.login
-      puts "You are now authenticated as #{login.username} with token #{flickr.access_token} and secret #{flickr.access_secret}"
-      puts "Complete the settings.yaml file with your login information"
-    rescue FlickRaw::FailedResponse => e
-      puts "Authentication failed : #{e.msg}"
-    end
-    exit
-  end
-
-end
 
 begin
   settings = YAML::load_file('settings.yaml')
