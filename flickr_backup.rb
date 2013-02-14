@@ -6,51 +6,16 @@ require 'yaml'
 require 'logger'
 require 'typhoeus'
 require 'optparse'
+require 'ftools'
 require_relative 'lib/flickr_connector.rb'
-
-hash_options = {}
-OptionParser.new do |opts|
-  opts.banner = "Usage: your_app [options]"
-  opts.on('-p [ARG]', '--photosetid [ARG]', "Specify the photosetid") do |v|
-    hash_options[:photosetid] = v
-  end
-  opts.on('--version', 'Display the version') do 
-    puts "Ruby Flickr Backup 0.1"
-    exit
-  end
-  opts.on('-h', '--help', 'Display this help') do 
-    puts opts
-    exit
-  end
-end.parse!
-
-if !hash_options[:photosetid]
-  puts 'Usage:'
-  puts 'ruby flickr_backup.rb --photosetid [your flickr photosetid]'
-  exit
-else
-  photoset_id = hash_options[:photosetid]
-end
+require_relative 'lib/startup_settings.rb'
 
 TASA_DE_SULFATAMIENTO = 5
-
-#photoset_id = '72157613159816302'
-
 log = Logger.new( 'log.txt', 'daily' )
-
 log.info("Starting...")
 
-begin
-  settings = YAML::load_file('settings.yaml')
-rescue Exception => e
-  puts "Could not parse YAML: #{e.message}"
-  exit
-end
-
-if (!settings["flickr"]["api_key"] || !settings["flickr"]["shared_secret"] )
-  puts "Add your API KEY and Shared Secret to the settings.yaml file"
-  exit
-end
+photoset_id = parse_options
+settings = parse_yaml
 
 flickr_connector = FlickrConnector.new
 flickr_connector.set_api_key_shared_secret( settings["flickr"]["api_key"],
@@ -71,19 +36,22 @@ else
 end
 
 myUserId = flickr.people.findByUsername(:username => flickrUserName).id
-threads = Array.new
+photoset_name = flickr.photosets.getInfo(:photoset_id => photoset_id).title
+
+local_photoset_folder_path = LOCAL_PHOTO_DIR + photoset_name + '/'
+FileUtils.mkdir_p(local_photoset_folder_path) unless File.exists?(local_photoset_folder_path)
 
 print "Downloading ", flickrUserName, "'s photos \n"
+print "From photoset: ", photoset_name, "\n"
 
 #Con typhoeus, hydras y toa la pesca
-
 hydra = Typhoeus::Hydra.new(:max_concurrency => 20)
 
 flickr.photosets.getList(:user_id => myUserId).each do |photo|
 
   url = flickr.photos.getSizes(:photo_id => photo.primary).find{|p| p["label"]=="Original"}["source"] rescue ''
   filename = CGI.unescapeHTML(photo.title).gsub(/ |&|,|-/, '_').gsub(/'/, '').downcase.squeeze('_') + '_' + photo.primary + '.jpg'
-  filepath = LOCAL_PHOTO_DIR + filename
+  filepath = local_photoset_folder_path + filename
 
   if File.exists?(filepath)
     puts "Duplicada"
