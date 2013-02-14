@@ -1,8 +1,8 @@
 flickr:
-  api_key:
-  shared_secret:
-  access_token:
-  access_secret:
-  flickr_user_name:
+  api_key: 703f7a4e99f17f231db67f38f009ba82
+  shared_secret: f0779a44b278b9a7
+  access_token: 72157632269987363-32b1ee8289989220
+  access_secret: 6aad3dcb713df375
+  flickr_user_name: kirainet
 local:
   photo_folder: /Users/hector-garcia/Desktop/
