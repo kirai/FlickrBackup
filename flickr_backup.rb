@@ -5,33 +5,36 @@ require 'uri'
 require 'yaml'
 require 'logger'
 require 'typhoeus'
-require 'commander/import'
+require 'optparse'
 require_relative 'lib/flickr_connector.rb'
 
-################################################################################
-program :name, 'Ruby Flickr Backup'
-program :version, '0.0.1'
-program :description, 'Ruby Flickr script to download full sized pictures from 
-                       your flickr photostream'
-
-command :photoset do |c|
-  c.syntax = 'flickr_backup.rb photoset [options]'
-  c.description = 'Downloads all the pictures from a specific photoset'
-  c.option '--photosetid PhotosetId', String, 'Photoset id to be downloaded'
-  c.action do |args, options|
-    #if options.default[:photosetid]
-    #  photoset_id = options.default[:photosetid]
-    #end
-    options.default :prefix => '(', :suffix => ')'
-    say "#{options.prefix}#{options.suffix}"
+hash_options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: your_app [options]"
+  opts.on('-p [ARG]', '--photosetid [ARG]', "Specify the photosetid") do |v|
+    hash_options[:photosetid] = v
   end
-end
+  opts.on('--version', 'Display the version') do 
+    puts "Ruby Flickr Backup 0.1"
+    exit
+  end
+  opts.on('-h', '--help', 'Display this help') do 
+    puts opts
+    exit
+  end
+end.parse!
 
-################################################################################
+if !hash_options[:photosetid]
+  puts 'Usage:'
+  puts 'ruby flickr_backup.rb --photosetid [your flickr photosetid]'
+  exit
+else
+  photoset_id = hash_options[:photosetid]
+end
 
 TASA_DE_SULFATAMIENTO = 5
 
-photoset_id = '72157613159816302'
+#photoset_id = '72157613159816302'
 
 log = Logger.new( 'log.txt', 'daily' )
 
@@ -101,43 +104,3 @@ flickr.photosets.getList(:user_id => myUserId).each do |photo|
   end
   sleep(1)  # Para no sulfatar el API de flickr
 end
-
-# Con Threads
-#flickr.photosets.getList(:user_id => myUserId).each do |photo|
-#
-#  print "Threads activos: "
-#  print threads.length
-#
-#  if threads.length > TASA_DE_SULFATAMIENTO 
-#    threads.each do |t|
-#      t.join
-#    end
-#    threads.clear
-#  end
-#
-#  begin
-#
-#    url = flickr.photos.getSizes(:photo_id => photo.primary).find{|p| p["label"]=="Original"}["source"] rescue ''
-#    filename = CGI.unescapeHTML(photo.title).gsub(/ |&|,|-/, '_').gsub(/'/, '').downcase.squeeze('_') + '_' + photo.primary + '.jpg'
-#    filepath = LOCAL_PHOTO_DIR + filename
-#
-#    if File.exists?(filepath)
-#      puts "Duplicada"
-#    else
-#      puts "Pillando fotaco"
-#      threads << Thread.new {
-#        uri = URI(url)
-#        Net::HTTP.start(uri.host) do |http|
-#          resp = http.get(uri.path)
-#          open("#{filepath}", "wb") do |file|
-#            file.write(resp.body)
-#          end
-#        end
-#      }
-#    end
-#
-#  rescue Exception => e
-#    "Algo ha petado mientras trataba de pillar una foto"
-#  end
-#  puts "\n"
-#end
