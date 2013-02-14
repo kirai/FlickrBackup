@@ -4,9 +4,9 @@ A Ruby script to download Flickr photosets pictures (Original resolution)
 
 ## Installation and setup
 
-bundle install
+Step 1: bundle install
 
-Need to edit the settings.yaml file in the same folder with this fields:
+Step 2: Need to edit the settings.yaml file in the same folder with this fields:
 
 ```
 flickr:
