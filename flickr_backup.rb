@@ -47,10 +47,9 @@ print "From photoset: ", photoset_name, "\n"
 #Con typhoeus, hydras y toa la pesca
 hydra = Typhoeus::Hydra.new(:max_concurrency => 20)
 
-flickr.photosets.getList(:user_id => myUserId).each do |photo|
-
-  url = flickr.photos.getSizes(:photo_id => photo.primary).find{|p| p["label"]=="Original"}["source"] rescue ''
-  filename = CGI.unescapeHTML(photo.title).gsub(/ |&|,|-/, '_').gsub(/'/, '').downcase.squeeze('_') + '_' + photo.primary + '.jpg'
+flickr.photosets.getPhotos(:photoset_id => photoset_id).photo.each do |photo|
+  url = flickr.photos.getSizes(:photo_id => photo.id).find{|p| p["label"]=="Original"}["source"] rescue ''
+  filename = CGI.unescapeHTML(photo.title).gsub(/ |&|,|-/, '_').gsub(/'/, '').downcase.squeeze('_') + '_' + photo.id + '.jpg'
   filepath = local_photoset_folder_path + filename
 
   if File.exists?(filepath)
