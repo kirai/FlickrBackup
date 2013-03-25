@@ -20,8 +20,10 @@ photoset_id = parse_options
 settings = parse_yaml
 
 #Flickr API connection
-flickr_connector = FlickrConnector.new.set_api_key_shared_secret( settings["flickr"]["api_key"],
-                                                                  settings["flickr"]["shared_secret"])
+flickr_connector = FlickrConnector.new
+
+flickr_connector.set_api_key_shared_secret( settings["flickr"]["api_key"],
+                                            settings["flickr"]["shared_secret"])
 
 if (!settings["flickr"]["access_token"] || !settings["flickr"]["access_secret"])
   flickr_connector.request_token
