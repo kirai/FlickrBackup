@@ -11,40 +11,38 @@ require_relative 'lib/flickr_connector.rb'
 require_relative 'lib/startup_settings.rb'
 
 TASA_DE_SULFATAMIENTO = 5
+local_photo_dir = '~/Desktop/'
+
 log = Logger.new( 'log.txt', 'daily' )
 log.info("Starting...")
 
 photoset_id = parse_options
 settings = parse_yaml
 
-flickr_connector = FlickrConnector.new
-flickr_connector.set_api_key_shared_secret( settings["flickr"]["api_key"],
-                                            settings["flickr"]["shared_secret"])
+#Flickr API connection
+flickr_connector = FlickrConnector.new.set_api_key_shared_secret( settings["flickr"]["api_key"],
+                                                                  settings["flickr"]["shared_secret"])
 
 if (!settings["flickr"]["access_token"] || !settings["flickr"]["access_secret"])
   flickr_connector.request_token
 end
 
+# Flickr info
 flickr.access_token = settings["flickr"]["access_token"]
 flickr.access_secret = settings["flickr"]["access_secret"]
 flickrUserName = settings["flickr"]["flickr_user_name"]
-
-if(!settings["local"]["photo_folder"])
-  LOCAL_PHOTO_DIR = '~/Desktop/'
-else
-  LOCAL_PHOTO_DIR = settings["local"]["photo_folder"]
-end
-
 myUserId = flickr.people.findByUsername(:username => flickrUserName).id
 photoset_name = flickr.photosets.getInfo(:photoset_id => photoset_id).title
 
-local_photoset_folder_path = LOCAL_PHOTO_DIR + photoset_name + '/'
+# Local path to store the picture
+(local_photo_dir = settings["local"]["photo_folder"]) if settings["local"]["photo_folder"]
+local_photoset_folder_path = local_photo_dir + photoset_name + '/'
 FileUtils.mkdir_p(local_photoset_folder_path) unless File.exists?(local_photoset_folder_path)
 
+# Starting the download process with typhoeus, hydras y toa la pesca
 print "Downloading ", flickrUserName, "'s photos \n"
 print "From photoset: ", photoset_name, "\n"
 
-#Con typhoeus, hydras y toa la pesca
 hydra = Typhoeus::Hydra.new(:max_concurrency => 20)
 
 flickr.photosets.getPhotos(:photoset_id => photoset_id).photo.each do |photo|
