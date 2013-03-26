@@ -9,9 +9,10 @@ class GlacierConnector
     @vault = settings['vault']
   end
 
-  def freeze(file)
+  def freeze(filename, file)
+    puts "Freezing #{filename}..."
     vault = @glacier.vaults.get(@vault)
-    vault.archives.create(:body => file, :multipart_chunk_size => 1024*1024)
+    vault.archives.create(:body => file, :multipart_chunk_size => 1024*1024, :description => filename)
   end
 
 end
