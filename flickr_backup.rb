@@ -7,8 +7,10 @@ require 'logger'
 require 'typhoeus'
 require 'optparse'
 require 'ftools'
+require 'mini_exiftool'
 require_relative 'lib/flickr_connector.rb'
 require_relative 'lib/startup_settings.rb'
+require_relative 'lib/exif_helper.rb'
 
 TASA_DE_SULFATAMIENTO = 5
 local_photo_dir = '~/Desktop/'
@@ -48,9 +50,13 @@ print "From photoset: ", photoset_name, "\n"
 hydra = Typhoeus::Hydra.new(:max_concurrency => 20)
 
 flickr.photosets.getPhotos(:photoset_id => photoset_id).photo.each do |photo|
-  url = flickr.photos.getSizes(:photo_id => photo.id).find{|p| p["label"]=="Original"}["source"] rescue ''
+  
+  photo_info = flickr.photos.getInfo(:photo_id => photo.id)
+  
+  url = FlickRaw.url_o(photo_info) rescue FlickRaw.url_m(photo_info) rescue '' 
   filename = CGI.unescapeHTML(photo.title).gsub(/ |&|,|-/, '_').gsub(/'/, '').downcase.squeeze('_') + '_' + photo.id + '.jpg'
   filepath = local_photoset_folder_path + filename
+
 
   if File.exists?(filepath)
     puts "Duplicada"
@@ -58,9 +64,16 @@ flickr.photosets.getPhotos(:photoset_id => photoset_id).photo.each do |photo|
     puts "Encolando fotaco en la hydra"
     r = Typhoeus::Request.new(url)
     r.on_complete do |response|
+      
+      #Save file at local path
       open("#{filepath}", "wb") do |file|
         file.write(response.body)
       end
+     
+      #Edit exif information
+      tags = ExifHelper::flickr_tags_to_string(photo_info.tags.to_a)
+      ExifHelper::edit_tags(tags, filepath)
+
     end
     hydra.queue r
   end
