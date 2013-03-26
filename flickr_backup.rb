@@ -54,5 +54,5 @@ print "From photoset: ", photoset_name, "\n"
 print "Store in glacier? ", use_glacier, "\n"
 
 photo_fetcher = PhotoFetcher.new
-photo_fetcher.download_photoset(photoset_id, local_photoset_folder_path)
+photo_fetcher.download_photoset(photoset_id, local_photoset_folder_path, use_glacier)
 
