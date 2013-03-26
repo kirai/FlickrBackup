@@ -38,6 +38,7 @@ aws:
 ## Usage
 To store files locally use
 ruby flickr_backup.rb --photosetid=72157613159816302
+
 If you want to store your pictures on amazon glacier pass --glacier=Y option (ruby flickr_backup.rb --photosetid=72157613159816302 --glacer=Y)
 
 ## Copyright
