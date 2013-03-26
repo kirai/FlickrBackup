@@ -21,7 +21,7 @@ class PhotoFetcher
         puts "Encolando fotaco en la hydra"
         r = Typhoeus::Request.new(url)
         r.on_complete do |response|
-          post_to_glacier ? glacier_connector.freeze(filename, response.body) : store_local(filename, response.body)
+          post_to_glacier ? glacier_connector.freeze(filename, response.body) : store_local(filename, response.body, file_path, photo_info)
         end
         hydra.queue r
       end
@@ -33,7 +33,7 @@ class PhotoFetcher
     end
   end
 
-  def store_local(filename, file)
+  def store_local(filename, file, file_path, photo_info)
     #Save file at local path
     open("#{file_path}", "wb"){|f| f.write(file)}
     #Edit exif information
