@@ -12,6 +12,7 @@ require_relative 'lib/flickr_connector.rb'
 require_relative 'lib/startup_settings.rb'
 require_relative 'lib/exif_helper.rb'
 require_relative 'lib/photo_fetcher.rb'
+require_relative 'lib/glacier_connector.rb'
 
 TASA_DE_SULFATAMIENTO = 5
 local_photo_dir = '~/Desktop/'
@@ -50,7 +51,7 @@ FileUtils.mkdir_p(local_photoset_folder_path) unless File.exists?(local_photoset
 # Starting the download process with typhoeus, hydras y toa la pesca
 print "Downloading ", flickrUserName, "'s photos \n"
 print "From photoset: ", photoset_name, "\n"
-print "Store in glacier? ", glacier, "\n"
+print "Store in glacier? ", use_glacier, "\n"
 
 photo_fetcher = PhotoFetcher.new
 photo_fetcher.download_photoset(photoset_id, local_photoset_folder_path)
