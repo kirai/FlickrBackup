@@ -1,4 +1,3 @@
-
 def parse_options
   hash_options = {}
   OptionParser.new do |opts|
@@ -6,25 +5,25 @@ def parse_options
     opts.on('-p [ARG]', '--photosetid [ARG]', "Specify the photosetid") do |v|
       hash_options[:photosetid] = v
     end
-    opts.on('--version', 'Display the version') do 
+    opts.on('--version', 'Display the version') do
       puts "Ruby Flickr Backup 0.1"
       exit
     end
-    opts.on('-h', '--help', 'Display this help') do 
+    opts.on('-h', '--help', 'Display this help') do
       puts opts
       exit
     end
+    opts.on('--glacier [ARG]', 'Set the storate [y N]: ') do |v|
+      hash_options[:glacier]= (v && v.capitalize == 'Y')
+    end
   end.parse!
-  
-  if !hash_options[:photosetid]
+
+  unless hash_options[:photosetid]
     puts 'Usage:'
-    puts 'ruby flickr_backup.rb --photosetid [your flickr photosetid]'
+    puts 'ruby flickr_backup.rb --photosetid [your flickr photosetid] --glacier=[y N]'
     exit
-  else
-    photoset_id = hash_options[:photosetid]
   end
-  
-  return photoset_id
+  return hash_options
 end
 
 def fetch_config

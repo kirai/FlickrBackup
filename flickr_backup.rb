@@ -16,7 +16,10 @@ local_photo_dir = '~/Desktop/'
 log = Logger.new( 'log.txt', 'daily' )
 log.info("Starting...")
 
-photoset_id = parse_options
+options = parse_options
+photoset_id = options[:photosetid]
+use_glacier = options[:glacier]
+
 settings = parse_yaml
 
 #Flickr API connection
@@ -44,6 +47,7 @@ FileUtils.mkdir_p(local_photoset_folder_path) unless File.exists?(local_photoset
 # Starting the download process with typhoeus, hydras y toa la pesca
 print "Downloading ", flickrUserName, "'s photos \n"
 print "From photoset: ", photoset_name, "\n"
+print "Store in glacier? ", glacier, "\n"
 
 hydra = Typhoeus::Hydra.new(:max_concurrency => 20)
 
