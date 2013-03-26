@@ -1,12 +1,13 @@
 flickr:
-  api_key: 
-  shared_secret: 
-  access_token: 
-  access_secret: 
-  flickr_user_name: kirainet
+  api_key: e4bab6dba30923e4ce599be7f0b3e2e1
+  shared_secret: e1eeebdccc0e27f2
+  access_token: 72157633086176904-2e92d7288936fc8b
+  access_secret: 6a4168094321f969
+  flickr_user_name: cadsonline
 local:
-  photo_folder: /Users/hector-garcia/Desktop/
+  photo_folder: /Users/CaDs/Desktop/
 
 aws:
   access_key:
-  secret_key: 
+  secret_key:
+  region:
