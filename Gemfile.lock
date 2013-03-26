@@ -30,6 +30,7 @@ GEM
     formatador (0.2.4)
     ftools (0.0.0)
     mime-types (1.20.1)
+    mini_exiftool (1.6.0)
     multi_json (1.6.1)
     net-scp (1.0.4)
       net-ssh (>= 1.99.1)
@@ -55,5 +56,6 @@ DEPENDENCIES
   flickraw
   fog
   ftools
+  mini_exiftool
   rspec
   typhoeus

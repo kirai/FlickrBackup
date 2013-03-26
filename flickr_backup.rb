@@ -7,8 +7,11 @@ require 'logger'
 require 'typhoeus'
 require 'optparse'
 require 'ftools'
+require 'mini_exiftool'
 require_relative 'lib/flickr_connector.rb'
 require_relative 'lib/startup_settings.rb'
+require_relative 'lib/exif_helper.rb'
+require_relative 'lib/photo_fetcher.rb'
 
 TASA_DE_SULFATAMIENTO = 5
 local_photo_dir = '~/Desktop/'
@@ -49,29 +52,6 @@ print "Downloading ", flickrUserName, "'s photos \n"
 print "From photoset: ", photoset_name, "\n"
 print "Store in glacier? ", glacier, "\n"
 
-hydra = Typhoeus::Hydra.new(:max_concurrency => 20)
+photo_fetcher = PhotoFetcher.new
+photo_fetcher.download_photoset(photoset_id, local_photoset_folder_path)
 
-flickr.photosets.getPhotos(:photoset_id => photoset_id).photo.each do |photo|
-  url = flickr.photos.getSizes(:photo_id => photo.id).find{|p| p["label"]=="Original"}["source"] rescue ''
-  filename = CGI.unescapeHTML(photo.title).gsub(/ |&|,|-/, '_').gsub(/'/, '').downcase.squeeze('_') + '_' + photo.id + '.jpg'
-  filepath = local_photoset_folder_path + filename
-
-  if File.exists?(filepath)
-    puts "Duplicada"
-  else
-    puts "Encolando fotaco en la hydra"
-    r = Typhoeus::Request.new(url)
-    r.on_complete do |response|
-      open("#{filepath}", "wb") do |file|
-        file.write(response.body)
-      end
-    end
-    hydra.queue r
-  end
-
-  if hydra.queued_requests.size > TASA_DE_SULFATAMIENTO
-     puts "La hydra se pone a currar"
-     hydra.run
-  end
-  sleep(1)  # Para no sulfatar el API de flickr
-end
