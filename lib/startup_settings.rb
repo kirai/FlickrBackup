@@ -27,13 +27,17 @@ def parse_options
   return photoset_id
 end
 
-def parse_yaml
+def fetch_config
   begin
-    settings = YAML::load_file('settings.yaml')
+    YAML::load_file('settings.yaml')
   rescue Exception => e
     puts "Could not parse YAML: #{e.message}"
     exit
   end
+end
+
+def parse_yaml
+  settings = fetch_config
 
   if (!settings["flickr"]["api_key"] || !settings["flickr"]["shared_secret"] )
     puts "Add your API KEY and Shared Secret to the settings.yaml file"
@@ -43,3 +47,6 @@ def parse_yaml
   return settings
 end
 
+def get_glacier_credentials
+  fetch_config['aws'] rescue puts 'There was an error fetching your Amazon Glacier configuration'
+end

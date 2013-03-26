@@ -2,14 +2,32 @@ GEM
   remote: http://rubygems.org/
   remote: http://rubygems.org/
   specs:
+    builder (3.2.0)
     diff-lcs (1.1.3)
     ethon (0.5.7)
       ffi (~> 1.2.0)
       mime-types (~> 1.18)
+    excon (0.16.10)
     ffi (1.2.0)
     flickraw (0.9.6)
+    fog (1.9.0)
+      builder
+      excon (~> 0.14)
+      formatador (~> 0.2.0)
+      mime-types
+      multi_json (~> 1.0)
+      net-scp (~> 1.0.4)
+      net-ssh (>= 2.1.3)
+      nokogiri (~> 1.5.0)
+      ruby-hmac
+    formatador (0.2.4)
     ftools (0.0.0)
     mime-types (1.20.1)
+    multi_json (1.6.1)
+    net-scp (1.0.4)
+      net-ssh (>= 1.99.1)
+    net-ssh (2.6.2)
+    nokogiri (1.5.9)
     rspec (2.12.0)
       rspec-core (~> 2.12.0)
       rspec-expectations (~> 2.12.0)
@@ -18,6 +36,7 @@ GEM
     rspec-expectations (2.12.1)
       diff-lcs (~> 1.1.3)
     rspec-mocks (2.12.0)
+    ruby-hmac (0.4.0)
     typhoeus (0.5.3)
       ethon (~> 0.5.3)
 
@@ -26,6 +45,7 @@ PLATFORMS
 
 DEPENDENCIES
   flickraw
+  fog
   ftools
   rspec
   typhoeus

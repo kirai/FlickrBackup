@@ -6,3 +6,7 @@ flickr:
   flickr_user_name: kirainet
 local:
   photo_folder: /Users/hector-garcia/Desktop/
+
+aws:
+  access_key:
+  secret_key: 
