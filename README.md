@@ -14,15 +14,6 @@ flickr:
   shared_secret: YOUR_SHARED_SECRET
   access_token: YOUR_ACCESS_TOKEN
   access_secret: YOUR_FLICKR_ACCESS_SECRET
-  flickr_user_name: YOUR_USER_NAME
-local:
-  photo_folder: /Users/hector-garcia/Desktop/
-
-flickr:
-  api_key: YOUR_FLICKR_API_KEY
-  shared_secret: YOUR_SHARED_SECRET
-  access_token: YOUR_ACCESS_TOKEN
-  access_secret: YOUR_FLICKR_ACCESS_SECRET
   flickr_user_name: YOUR_FLICKR_USER_NAME
 local:
   photo_folder: /path/to/store/files/locally
