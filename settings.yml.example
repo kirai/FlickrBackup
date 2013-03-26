@@ -1,0 +1,14 @@
+flickr:
+  api_key:
+  shared_secret:
+  access_token:
+  access_secret:
+  flickr_user_name:
+local:
+  photo_folder: /Users/username/Desktop/
+
+aws:
+  access_key:
+  secret_key:
+  region:
+  vault:
