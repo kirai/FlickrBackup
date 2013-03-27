@@ -1,11 +1,11 @@
-require 'debugger'
+#require 'debugger'
 require_relative 'startup_settings.rb'
 
 class PhotoFetcher
 
-  def download_photoset(photoset_id, local_photoset_folder_path, post_to_glacier=false)
+  def download_photoset(photoset_id, local_photoset_folder_path, post_to_glacier=false, storage)
+
     hydra = Typhoeus::Hydra.new(:max_concurrency => 20)
-    glacier_connector = GlacierConnector.new(get_glacier_credentials)
 
     flickr.photosets.getPhotos(:photoset_id => photoset_id).photo.each do |photo|
 
@@ -21,7 +21,7 @@ class PhotoFetcher
         puts "Encolando fotaco en la hydra"
         r = Typhoeus::Request.new(url)
         r.on_complete do |response|
-          post_to_glacier ? glacier_connector.freeze(filename, response.body) : store_local(filename, response.body, file_path, photo_info)
+          post_to_glacier ? storage.save(filename, response.body) : store_local(filename, response.body, file_path, photo_info) # TODO: get rid of this conditional
         end
         hydra.queue r
       end
@@ -32,13 +32,4 @@ class PhotoFetcher
       sleep(1)  # Para no sulfatar el API de flickr
     end
   end
-
-  def store_local(filename, file, file_path, photo_info)
-    #Save file at local path
-    open("#{file_path}", "wb"){|f| f.write(file)}
-    #Edit exif information
-    tags = ExifHelper::flickr_tags_to_string(photo_info.tags.to_a)
-    ExifHelper::edit_tags(tags, file_path)
-  end
-
 end
