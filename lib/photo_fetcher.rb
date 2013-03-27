@@ -21,7 +21,7 @@ class PhotoFetcher
         puts "Encolando fotaco en la hydra"
         r = Typhoeus::Request.new(url)
         r.on_complete do |response|
-          post_to_glacier ? storage.save(filename, response.body) : store_local(filename, response.body, file_path, photo_info) # TODO: get rid of this conditional
+          post_to_glacier ? storage.save(filename, response.body) : storage.save(filename, response.body, file_path, photo_info) # TODO: get rid of this conditional
         end
         hydra.queue r
       end
